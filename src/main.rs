@@ -34,7 +34,9 @@ fn main() {
 		let command_path = check_paths(&input_buffer);
 
 		if command_path.is_ok() {
-			Command::new(input_buffer).spawn().expect("unknown command");
+			let mut child = Command::new(input_buffer).spawn().expect("unknown command");
+
+			child.wait().unwrap();
 		} else {
 			println!("unknown command");
 		}
