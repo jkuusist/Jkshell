@@ -31,12 +31,25 @@ fn main() {
 
 		input_buffer.truncate(input_buffer.len() - 1);
 
+		let arg_index = input_buffer.find(char::is_whitespace);
+		let mut args: String = "".to_string();
+
+		if arg_index.is_some() {
+			args = input_buffer.split_off(arg_index.unwrap());
+		}
+
 		let command_path = check_paths(&input_buffer);
 
 		if command_path.is_ok() {
-			let mut child = Command::new(input_buffer).spawn().expect("unknown command");
+			let mut child = Command::new(input_buffer); //.args(args.split_whitespace()).spawn().expect("unknown command");
 
-			child.wait().unwrap();
+			if !args.is_empty() {
+				child.args(args.split_whitespace());
+			}
+
+			child.status().expect("unknown command");
+
+//			child.wait().unwrap();
 		} else {
 			println!("unknown command");
 		}
