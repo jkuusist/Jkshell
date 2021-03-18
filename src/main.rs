@@ -1,6 +1,7 @@
 use std::{env, fs};
 use std::io::{self, Write, stdout, Error, ErrorKind};
 use std::process::Command;
+use std::path::Path;
 
 fn check_paths(input_buffer: &str) -> Result<String, io::Error> {
 	let paths = env::var("PATH").expect("could not open PATH");
@@ -16,6 +17,23 @@ fn check_paths(input_buffer: &str) -> Result<String, io::Error> {
 	}
 
 	Err(Error::new(ErrorKind::NotFound, "unknown command"))
+}
+
+fn change_directory(args: String) {
+	let result;
+
+	if args.is_empty() {
+		let home_path = env::var("HOME").expect("could not open HOME");
+		result = env::set_current_dir(Path::new(&home_path));
+	} else {
+		let path = args.split_whitespace().next().unwrap();
+		result = env::set_current_dir(Path::new(path));
+	}
+
+	match result {
+		Ok(_) => return,
+		Err(error) => println!("{}", error),
+	}
 }
 
 fn main() {
@@ -38,20 +56,23 @@ fn main() {
 			args = input_buffer.split_off(arg_index.unwrap());
 		}
 
-		let command_path = check_paths(&input_buffer);
-
-		if command_path.is_ok() {
-			let mut child = Command::new(input_buffer); //.args(args.split_whitespace()).spawn().expect("unknown command");
-
-			if !args.is_empty() {
-				child.args(args.split_whitespace());
-			}
-
-			child.status().expect("unknown command");
-
-//			child.wait().unwrap();
+		if input_buffer == "cd" {
+			change_directory(args);
 		} else {
-			println!("unknown command");
+
+			let command_path = check_paths(&input_buffer);
+
+			if command_path.is_ok() {
+				let mut child = Command::new(input_buffer);				
+
+				if !args.is_empty() {
+					child.args(args.split_whitespace());
+				}
+
+				child.status().expect("unknown command");
+			} else {
+				println!("unknown command");
+			}
 		}
 	}
 }
