@@ -36,6 +36,12 @@ fn change_directory(args: String) {
 	}
 }
 
+fn echo_builtin(args: &str) {
+	let output = &args[1..args.len()];
+
+	println!("{}", output);
+}
+
 fn main() {
 	loop
 	{
@@ -58,8 +64,23 @@ fn main() {
 
 		if input_buffer == "cd" {
 			change_directory(args);
-		} else {
+		} else if input_buffer == "echo" {
+			let command_path = check_paths(&input_buffer);
 
+			if command_path.is_ok() {
+				let mut child = Command::new(input_buffer);				
+
+				if !args.is_empty() {
+					child.args(args.split_whitespace());
+				}
+
+				child.status().expect("unknown command");
+			} else {
+
+				echo_builtin(&args);
+			}
+
+		} else {
 			let command_path = check_paths(&input_buffer);
 
 			if command_path.is_ok() {
