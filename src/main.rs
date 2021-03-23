@@ -1,7 +1,8 @@
 use std::{env, fs};
 use std::io::{self, Write, stdout, Error, ErrorKind};
 use std::process::Command;
-use std::path::Path;
+
+mod builtins;
 
 fn check_paths(input_buffer: &str) -> Result<String, io::Error> {
 	let paths = env::var("PATH").expect("could not open PATH");
@@ -17,29 +18,6 @@ fn check_paths(input_buffer: &str) -> Result<String, io::Error> {
 	}
 
 	Err(Error::new(ErrorKind::NotFound, "unknown command"))
-}
-
-fn change_directory(args: String) {
-	let result;
-
-	if args.is_empty() {
-		let home_path = env::var("HOME").expect("could not open HOME");
-		result = env::set_current_dir(Path::new(&home_path));
-	} else {
-		let path = args.split_whitespace().next().unwrap();
-		result = env::set_current_dir(Path::new(path));
-	}
-
-	match result {
-		Ok(_) => return,
-		Err(error) => println!("{}", error),
-	}
-}
-
-fn echo_builtin(args: &str) {
-	let output = &args[1..args.len()];
-
-	println!("{}", output);
 }
 
 fn main() {
@@ -63,7 +41,7 @@ fn main() {
 		}
 
 		if input_buffer == "cd" {
-			change_directory(args);
+			builtins::change_directory(args);
 		} else if input_buffer == "echo" {
 			let command_path = check_paths(&input_buffer);
 
@@ -77,7 +55,7 @@ fn main() {
 				child.status().expect("unknown command");
 			} else {
 
-				echo_builtin(&args);
+				builtins::echo_builtin(&args);
 			}
 
 		} else {
