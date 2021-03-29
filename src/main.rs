@@ -42,6 +42,8 @@ fn main() {
 
 		if input_buffer == "cd" {
 			builtins::change_directory(args);
+		} else if input_buffer == "export" {
+			builtins::set_environment(&args);
 		} else if input_buffer == "echo" {
 			let command_path = check_paths(&input_buffer);
 

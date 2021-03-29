@@ -18,6 +18,30 @@ pub fn change_directory(args: String) {
 	}
 }
 
+pub fn set_environment(args: &str) {
+	let argv: Vec<&str> = args.split_whitespace().collect();
+
+//	println!("argv.len() is {}", argv.len());
+
+	if argv.len() == 0 {
+		let mut env = Vec::new();
+
+		for var in env::vars() {
+			env.push(var);
+		}
+
+		env.sort_unstable();
+
+		for (key, value) in env {
+			println!("{}={}", key, value);
+		}
+	} else if argv.len() == 2 {
+		env::set_var(argv[0], argv[1]);
+	} else {
+		println!("usage: export key value");
+	}
+}
+
 pub fn echo_builtin(args: &str) {
 	let output = &args[1..args.len()];
 
