@@ -40,41 +40,41 @@ fn main() {
 			args = input_buffer.split_off(arg_index.unwrap());
 		}
 
-		if input_buffer == "cd" {
-			builtins::change_directory(args);
-		} else if input_buffer == "export" {
-			builtins::set_environment(&args);
-		} else if input_buffer == "unset" { 
-			builtins::unset_environment(&args);
-		} else if input_buffer == "echo" {
-			let command_path = check_paths(&input_buffer);
+		match input_buffer.as_str() {
+			"cd" => builtins::change_directory(args),
+			"export" => builtins::set_environment(&args),
+			"unset" => builtins::unset_environment(&args),
+			"echo" => {
+				let command_path = check_paths(&input_buffer);
 
-			if command_path.is_ok() {
-				let mut child = Command::new(input_buffer);				
+				if command_path.is_ok() {
+					let mut child = Command::new(input_buffer);				
 
-				if !args.is_empty() {
-					child.args(args.split_whitespace());
+					if !args.is_empty() {
+						child.args(args.split_whitespace());
+					}
+
+					child.status().expect("unknown command");
+				} else {
+					builtins::echo_builtin(&args);
 				}
+			},
+			_ => {
+				let command_path = check_paths(&input_buffer);
 
-				child.status().expect("unknown command");
-			} else {
-				builtins::echo_builtin(&args);
+				if command_path.is_ok() {
+					let mut child = Command::new(input_buffer);				
+
+					if !args.is_empty() {
+						child.args(args.split_whitespace());
+					}
+
+					child.status().expect("unknown command");
+				} else {
+					println!("unknown command");
+				}
 			}
 
-		} else {
-			let command_path = check_paths(&input_buffer);
-
-			if command_path.is_ok() {
-				let mut child = Command::new(input_buffer);				
-
-				if !args.is_empty() {
-					child.args(args.split_whitespace());
-				}
-
-				child.status().expect("unknown command");
-			} else {
-				println!("unknown command");
-			}
 		}
 	}
 }
