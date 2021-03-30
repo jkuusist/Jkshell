@@ -44,6 +44,8 @@ fn main() {
 			builtins::change_directory(args);
 		} else if input_buffer == "export" {
 			builtins::set_environment(&args);
+		} else if input_buffer == "unset" { 
+			builtins::unset_environment(&args);
 		} else if input_buffer == "echo" {
 			let command_path = check_paths(&input_buffer);
 
@@ -56,7 +58,6 @@ fn main() {
 
 				child.status().expect("unknown command");
 			} else {
-
 				builtins::echo_builtin(&args);
 			}
 
