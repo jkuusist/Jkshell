@@ -33,8 +33,24 @@ pub fn set_environment(args: &str) {
 		for (key, value) in env {
 			println!("{}={}", key, value);
 		}
-	} else if argv.len() == 2 {
-		env::set_var(argv[0], argv[1]);
+	} else if argv.len() == 1 {
+		let mut key = String::from(argv[0]);
+		if let Some(eq_index) = key.find('=') {
+			let mut value = &key.split_off(eq_index)[1..];
+			if value.chars().nth(0).unwrap() == '\'' &&
+			value.chars().nth(value.len() - 1).unwrap() == '\'' {
+				value = &value[1..value.len() - 1];
+			}
+
+			env::set_var(key, value);
+
+//			println!("key is: {}\nvalue is: {}", key, value);
+		} else {
+			println!("usage: export KEY='value'");
+		}
+
+
+//		env::set_var(argv[0], argv[1]);
 	} else {
 		println!("usage: export key value");
 	}
